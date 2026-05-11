@@ -1,0 +1,108 @@
+# LiteLLM Unified AI Gateway — Chimera Bootstrap
+# Single /v1 endpoint routing to all Chimera nodes
+#
+# Node A (192.168.1.11): RX 7900 XT 20GB — heavy inference (currently offline for vLLM)
+# Node B (192.168.1.222): RTX 4070 12GB — fast/code inference, Ollama
+#
+# Deploy: compose/dev/03-gateway.yml
+# Validate: curl -H "Authorization: Bearer sk-master-key" http://192.168.1.222:4000/v1/models
+
+model_list:
+  # ── Node B — Unraid Ollama (RTX 4070) ────────────────────────────────────
+  - model_name: brawn-fast
+    litellm_params:
+      model: ollama/qwen2.5:7b-instruct
+      api_base: http://192.168.1.222:11434
+      rpm: 100
+      timeout: 120
+    model_info:
+      description: "qwen2.5:7b-instruct on Node B — fast chat, quick lookups"
+
+  - model_name: brawn-code
+    litellm_params:
+      model: ollama/qwen2.5-coder:14b
+      api_base: http://192.168.1.222:11434
+      rpm: 80
+      timeout: 180
+    model_info:
+      description: "qwen2.5-coder:14b on Node B — code generation"
+
+  - model_name: brawn-phi
+    litellm_params:
+      model: ollama/phi3:mini
+      api_base: http://192.168.1.222:11434
+      rpm: 120
+      timeout: 60
+    model_info:
+      description: "phi3:mini on Node B — lightweight fast inference"
+
+  - model_name: brawn-dolphin
+    litellm_params:
+      model: ollama/dolphin-mistral:7b
+      api_base: http://192.168.1.222:11434
+      rpm: 80
+      timeout: 120
+    model_info:
+      description: "dolphin-mistral:7b on Node B — uncensored generation"
+
+  - model_name: brawn-vision
+    litellm_params:
+      model: ollama/moondream:latest
+      api_base: http://192.168.1.222:11434
+      rpm: 60
+      timeout: 180
+    model_info:
+      description: "moondream on Node B — lightweight vision"
+      supports_vision: true
+
+  # Operator aliases
+  - model_name: operator-fast
+    litellm_params:
+      model: ollama/qwen2.5:7b-instruct
+      api_base: http://192.168.1.222:11434
+      rpm: 100
+      timeout: 120
+
+  - model_name: operator-code
+    litellm_params:
+      model: ollama/qwen2.5-coder:14b
+      api_base: http://192.168.1.222:11434
+      rpm: 80
+      timeout: 180
+
+  # ── OpenAI compatibility aliases — HA extended_openai_conversation ──
+  - model_name: gpt-4o-mini
+    litellm_params:
+      model: ollama/qwen2.5:7b-instruct
+      api_base: http://192.168.1.222:11434
+      rpm: 100
+      timeout: 120
+    model_info:
+      description: "HA voice assistant alias → brawn-fast (Node B Ollama)"
+
+  - model_name: gpt-4o
+    litellm_params:
+      model: ollama/qwen2.5-coder:14b
+      api_base: http://192.168.1.222:11434
+      rpm: 60
+      timeout: 180
+    model_info:
+      description: "HA/OpenClaw gpt-4o alias → Node B Ollama"
+
+general_settings:
+  master_key: sk-master-key
+  proxy_batch_write_at: 60
+  database_connection_pool_limit: 10
+
+router_settings:
+  routing_strategy: latency-based-routing
+  num_retries: 3
+  timeout: 120
+  fallbacks:
+    - brawn-code:
+        - brawn-fast
+        - brawn-phi
+    - brawn-dolphin:
+        - brawn-fast
+    - brawn-vision:
+        - brawn-fast

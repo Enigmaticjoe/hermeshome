@@ -1,0 +1,643 @@
+# Node B Caddyfile - All services on 192.168.1.222
+# Caddy listens on :80 for Cloudflare-originated traffic
+# Cloudflare proxy handles TLS at edge, connects to origin over HTTP
+
+{
+    # Global opts
+    admin off
+}
+
+# ============================================================
+# AUTH SERVICE - Authelia's own portal (NO forward_auth loop)
+# ============================================================
+auth.happystrugglebus.us:80 {
+    reverse_proxy localhost:9091
+}
+
+# ============================================================
+# AUTH-PROTECTED SERVICES - All go through Authelia forward_auth
+# ============================================================
+media.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:4343
+}
+
+stash.happystrugglebus.us:80 {
+    reverse_proxy localhost:9998
+}
+
+# ============================================================
+# AUTH-PROTECTED SERVICES - All use forward_auth to Authelia
+# ============================================================
+plex.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:32400
+}
+
+jellyfin.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:8096
+}
+
+overseerr.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:5055
+}
+
+stremio.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:11470
+}
+
+audio.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:13378
+}
+
+tautulli.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:8181
+}
+
+sonarr.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:8989
+}
+
+radarr.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:7878
+}
+
+lidarr.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:8686
+}
+
+prowlarr.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:9696
+}
+
+bazarr.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:6767
+}
+
+zurg.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:9999
+}
+
+riven.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:3000
+}
+
+litellm.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:4000
+}
+
+ollama.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:11434
+}
+
+n8n.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:5678
+}
+
+searxng.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:8082
+}
+
+whisper.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:9191
+}
+
+navidrome.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:4533
+}
+
+komga.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:25600
+}
+
+kavita.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:5000
+}
+
+gamevault.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:8998
+}
+
+homepage.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:8010
+}
+
+portainer.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:9000
+}
+
+uptime.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:3010
+}
+
+dozzle.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:8888
+}
+
+rabbit-hole.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:43110
+}
+
+rabbit.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:43110
+}
+
+recommendarr.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:3006
+}
+
+qdrant.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:6333
+}
+
+maintainerr.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:6246
+}
+
+nextcloud.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy https://localhost:9443 {
+        transport http {
+            tls_insecure_skip_verify
+        }
+    }
+}
+
+notifiarr.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:5454
+}
+
+rdt.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:6500
+}
+
+anythingllm.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:3456
+}
+
+qbittorrent.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:8090
+}
+
+whisparr.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:6969
+}
+
+vault.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:8222
+}
+
+forgejo.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:3100
+}
+
+openwebui.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:3002
+}
+
+hermes.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy localhost:8787
+}
+
+
+debug.happystrugglebus.us:80 {
+    respond "Host: {http.request.host}\nURI: {http.request.uri}\nHostport: {http.request.hostport}\nScheme: {http.request.scheme}"
+}
+
+
+chimera.happystrugglebus.us:80 {
+    forward_auth localhost:9091 {
+        uri /api/verify?rd=https://{http.request.host}{http.request.uri}
+        header_up X-Forwarded-Proto https
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+
+        @302 status 302
+        handle_response @302 {
+            redir https://auth.happystrugglebus.us/?rd=https://{http.request.host}{http.request.uri}
+        }
+    }
+    reverse_proxy 192.168.1.11:8888
+}
+
+
+downloads.happystrugglebus.us:80 {
+    root * /mnt/user/media/downloads
+    file_server browse
+}

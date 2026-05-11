@@ -1,0 +1,70 @@
+###############################################################
+#                   Authelia configuration                    #
+###############################################################
+# See: https://www.authelia.com/configuration/
+
+server:
+  address: tcp://0.0.0.0:9091
+  disable_healthcheck: false
+
+log:
+  level: info
+
+theme: light
+
+authentication_backend:
+  file:
+    path: /config/users.yml
+
+access_control:
+  default_policy: deny
+  rules:
+    - domain: "*.happystrugglebus.us"
+      subject:
+        - ["group:admin"]
+      policy: one_factor
+    - domain:
+        - "sonarr.happystrugglebus.us"
+        - "radarr.happystrugglebus.us"
+        - "lidarr.happystrugglebus.us"
+        - "prowlarr.happystrugglebus.us"
+        - "qbittorrent.happystrugglebus.us"
+        - "plex.happystrugglebus.us"
+        - "overseerr.happystrugglebus.us"
+        - "portainer.happystrugglebus.us"
+        - "homepage.happystrugglebus.us"
+        - "whisparr.happystrugglebus.us"
+        - "media.happystrugglebus.us"
+        - "hermes.happystrugglebus.us"
+        - "bazarr.happystrugglebus.us"
+        - "tautulli.happystrugglebus.us"
+        - "forgejo.happystrugglebus.us"
+        - "n8n.happystrugglebus.us"
+      subject:
+        - ["group:user"]
+      policy: one_factor
+    - domain: "auth.happystrugglebus.us"
+      policy: bypass
+
+session:
+  name: authelia_session
+  secret: 65fca9db4f0243a95453927839e20239
+  expiration: 24h
+  inactivity: 30m
+  remember_me: 1M
+  domain: happystrugglebus.us
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    database_index: 0
+
+regulation:
+  max_retries: 5
+  find_time: 2m
+  ban_time: 5m
+
+totp:
+  disable: false
+  issuer: happystrugglebus.us
+  period: 30
+  skew: 1

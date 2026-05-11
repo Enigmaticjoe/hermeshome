@@ -1,0 +1,22 @@
+# Sensitive configs with real secrets — DO NOT commit
+.env*
+*.key
+*.pem
+secrets/
+credentials/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+node_modules/
+dist/
+*.pyc
+__pycache__/

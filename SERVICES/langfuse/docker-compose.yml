@@ -1,0 +1,41 @@
+services:
+  langfuse:
+    image: ghcr.io/langfuse/langfuse:2
+    container_name: langfuse
+    restart: unless-stopped
+    ports:
+      - "3003:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://langfuse:langfuse@langfuse-db:5432/langfuse
+      - NEXTAUTH_SECRET=chimera-langfuse-secret-2026
+      - NEXTAUTH_URL=http://192.168.1.222:3003
+      - SALT=chimera-langfuse-salt
+      - TELEMETRY_ENABLED=false
+    depends_on:
+      langfuse-db:
+        condition: service_healthy
+    networks:
+      - langfuse-net
+
+  langfuse-db:
+    image: postgres:17-alpine
+    container_name: langfuse-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=langfuse
+      - POSTGRES_PASSWORD=langfuse
+      - POSTGRES_DB=langfuse
+    volumes:
+      - /mnt/user/appdata/langfuse/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U langfuse"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - langfuse-net
+
+networks:
+  langfuse-net:
+    driver: bridge
