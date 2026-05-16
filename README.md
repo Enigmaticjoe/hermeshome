@@ -64,3 +64,11 @@ All services accessible via `*.happystrugglebus.us` through Cloudflare Tunnel �
 | File | Description |
 |------|-------------|
 |  | Complete system archive — Smoothy persona, credentials, Qdrant schema, voice pipeline, Phase Φ evolution framework, cron jobs, MCP stack. Ready for ChatGPT ingestion. |
+
+## Latest Updates (2026-05-16)
+
+| File | Description |
+|------|-------------|
+| `CHIMERA_REPORT.md` | Complete system archive — 35KB, 20 sections, everything for ChatGPT |
+| `QDRANT_SYNC.json` | Full Qdrant sync results (Node A ↔ Node B) |
+| `SCRIPTS/qdrant_sync.py` | Reusable Qdrant cross-node sync script |
