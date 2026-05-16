@@ -57,3 +57,10 @@ All services accessible via `*.happystrugglebus.us` through Cloudflare Tunnel �
 **Primary access:** `https://media.happystrugglebus.us`
 **Auth portal:** `https://auth.happystrugglebus.us`
 **Git:** `https://git.happystrugglebus.us`
+
+
+## Latest Addition
+
+| File | Description |
+|------|-------------|
+|  | Complete system archive — Smoothy persona, credentials, Qdrant schema, voice pipeline, Phase Φ evolution framework, cron jobs, MCP stack. Ready for ChatGPT ingestion. |

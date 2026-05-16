@@ -1,0 +1,42 @@
+{
+  "sync_completed": "2026-05-16T21:56:00",
+  "node_a": "http://192.168.1.11:6333",
+  "node_b": "http://192.168.1.222:6333",
+  "summary": {
+    "node_a_collections": 16,
+    "node_b_collections": 18,
+    "shared_collections": 16,
+    "a_only": [],
+    "b_only": ["hermes_memories", "stephai_memory"],
+    "collections_synced": 2,
+    "total_points_a": 5303,
+    "total_points_b": 5400,
+    "points_missing_on_b_after_sync": 0,
+    "points_extra_on_b": 97,
+    "points_upserted": 92,
+    "payload_diffs_remaining": 0
+  },
+  "collections": {
+    "chimera-bible":           {"a": 122,  "b": 122,  "upserted": 0,  "extra_on_b": 0,   "status": "in_sync"},
+    "chimera-frontpage-registry": {"a": 54, "b": 54,  "upserted": 0,  "extra_on_b": 0,   "status": "in_sync"},
+    "chimera-memory":          {"a": 16,   "b": 16,   "upserted": 0,  "extra_on_b": 0,   "status": "in_sync"},
+    "chimera-registry":        {"a": 61,   "b": 61,   "upserted": 0,  "extra_on_b": 0,   "status": "in_sync"},
+    "chimera_code":            {"a": 943,  "b": 943,  "upserted": 0,  "extra_on_b": 0,   "status": "in_sync"},
+    "chimera_credentials":     {"a": 155,  "b": 155,  "upserted": 0,  "extra_on_b": 0,   "status": "in_sync"},
+    "chimera_homelab":         {"a": 1214, "b": 1250, "upserted": 35, "extra_on_b": 36,  "status": "in_sync"},
+    "chimera_knowledge":       {"a": 2216, "b": 2262, "upserted": 45, "extra_on_b": 46,  "status": "in_sync"},
+    "documents":               {"a": 30,   "b": 30,   "upserted": 0,  "extra_on_b": 0,   "status": "in_sync"},
+    "opencode_memory":         {"a": 3,    "b": 3,    "upserted": 0,  "extra_on_b": 0,   "status": "in_sync"},
+    "rabbit-hole-memory":      {"a": 198,  "b": 210,  "upserted": 12, "extra_on_b": 12,  "status": "in_sync"},
+    "session_docs":            {"a": 27,   "b": 30,   "upserted": 0,  "extra_on_b": 3,   "status": "in_sync"},
+    "sherpa-hole":             {"a": 214,  "b": 214,  "upserted": 0,  "extra_on_b": 0,   "status": "in_sync"},
+    "smoothy_memory":          {"a": 1,    "b": 1,    "upserted": 0,  "extra_on_b": 0,   "status": "in_sync"},
+    "stephai_knowledge":       {"a": 33,   "b": 33,   "upserted": 0,  "extra_on_b": 0,   "status": "in_sync"},
+    "unity-plan":              {"a": 16,   "b": 16,   "upserted": 0,  "extra_on_b": 0,   "status": "in_sync"}
+  },
+  "b_only_collections": {
+    "hermes_memories": "exists on B only — no action needed",
+    "stephai_memory": "exists on B only — no action needed"
+  },
+  "note": "Upserted points have zero vectors (384-dim [0.0]*384). They preserve payload data but need re-embedding for semantic search functionality."
+}
