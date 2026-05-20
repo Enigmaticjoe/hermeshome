@@ -1,0 +1,198 @@
+# LiteLLM Config — Hermes Router v2.1 (Proposed for Repo)
+# Reflects the LIVE config on Node B at /mnt/user/appdata/shite/gateway/litellm-config.yaml
+#
+# Changes from v1:
+# - Replaced qwen2.5:7b-instruct → dolphin-mistral:7b-v2.8 (actual Ollama model)
+# - Replaced qwen2.5-coder:14b → nous-hermes2:10.7b (actual Ollama model)
+# - Removed phi3:mini (doesn't exist on Ollama)
+# - Added hermes-auto with fallback chain (cheap→code→deepseek)
+# - Added Node C models (arc-reason, arc-vision)
+# - Added hermes-deepseek (DeepSeek cloud API, final fallback only)
+# - Pinned image to v1.85.0 (main-latest was crash-looping)
+
+model_list:
+  # ── HERMES-AUTO: Tiered local-first routing ─────────────────────────────
+  - model_name: hermes-auto
+    litellm_params:
+      model: ollama/dolphin-mistral:7b-v2.8
+      api_base: http://192.168.1.222:11434
+      rpm: 120
+      timeout: 30
+    model_info:
+      description: "hermes-auto — local-first router default. Falls back: cheap→code→deepseek"
+
+  # ── Tier 1: CHEAP (~70% of queries, <500ms, $0) ────────────────────────
+  - model_name: hermes-cheap
+    litellm_params:
+      model: ollama/dolphin-mistral:7b-v2.8
+      api_base: http://192.168.1.222:11434
+      rpm: 120
+      timeout: 30
+    model_info:
+      description: "dolphin-mistral:7b-v2.8 on Node B — 4.1GB, <500ms, handles ~70% of queries"
+
+  # ── Tier 2: CODE / REASONING (~20% of queries, $0) ─────────────────────
+  - model_name: hermes-code
+    litellm_params:
+      model: ollama/nous-hermes2:10.7b
+      api_base: http://192.168.1.222:11434
+      rpm: 60
+      timeout: 120
+    model_info:
+      description: "nous-hermes2:10.7b on Node B — 6.1GB, deep reasoning, code generation"
+
+  - model_name: hermes-reason
+    litellm_params:
+      model: ollama/nous-hermes2:10.7b
+      api_base: http://192.168.1.222:11434
+      rpm: 60
+      timeout: 120
+    model_info:
+      description: "nous-hermes2:10.7b — alias for explicit reasoning use"
+
+  # ── Node C (Arc A770) models ──────────────────────────────────────────
+  - model_name: arc-reason
+    litellm_params:
+      model: ollama/qwen2.5:7b
+      api_base: http://100.100.88.37:11434
+      rpm: 30
+      timeout: 120
+    model_info:
+      description: "qwen2.5:7b on Node C (Arc A770 SYCL) — fallback reasoning"
+
+  - model_name: arc-vision
+    litellm_params:
+      model: ollama/moondream:latest
+      api_base: http://100.100.88.37:11434
+      rpm: 30
+      timeout: 180
+    model_info:
+      description: "moondream on Node C (Arc A770) — vision"
+      supports_vision: true
+
+  # ── Tier 3: HEAVY LOCAL (via Node B, ~3s, $0) ─────────────────────────
+  - model_name: hermes-medium
+    litellm_params:
+      model: ollama/qwen3:14b
+      api_base: http://192.168.1.222:11434
+      rpm: 20
+      timeout: 120
+    model_info:
+      description: "qwen3:14b on Node B (RTX 4070, 9.3GB) — NOTE: reasoning field stripped by LiteLLM v1.85"
+
+  # ── Tier 4: CLOUD API (paid, ≤2% of queries) ──────────────────────────
+  - model_name: hermes-deepseek
+    litellm_params:
+      model: deepseek/deepseek-v4-flash
+      api_key: ${DEEPSEEK_API_KEY}
+      rpm: 20
+      timeout: 120
+    model_info:
+      description: "DeepSeek V4 Flash — 1M context, paid ~$0.01/call, final fallback only"
+
+  # ─── vLLM on Node A (RX 7900 XT) — uncomment when container starts ─────
+  # - model_name: brain-heavy
+  #   litellm_params:
+  #     model: openai/Qwen/Qwen3-14B-AWQ
+  #     api_base: http://192.168.1.11:8000/v1
+  #     api_key: ${VLLM_API_KEY}
+  #     rpm: 20
+  #     timeout: 180
+  #   model_info:
+  #     description: "Qwen3-14B-AWQ on Node A vLLM (RX 7900 XT, 9.5GB VRAM)"
+
+  # ── Legacy / Backward Compat Aliases ──────────────────────────────────
+  - model_name: brawn-fast
+    litellm_params:
+      model: ollama/dolphin-mistral:7b-v2.8
+      api_base: http://192.168.1.222:11434
+      rpm: 100
+      timeout: 30
+
+  - model_name: brawn-code
+    litellm_params:
+      model: ollama/nous-hermes2:10.7b
+      api_base: http://192.168.1.222:11434
+      rpm: 60
+      timeout: 120
+
+  - model_name: brawn-dolphin
+    litellm_params:
+      model: ollama/dolphin-mistral:7b-v2.8
+      api_base: http://192.168.1.222:11434
+      rpm: 80
+      timeout: 120
+
+  - model_name: brawn-vision
+    litellm_params:
+      model: ollama/qwen3-vl:2b
+      api_base: http://192.168.1.222:11434
+      rpm: 60
+      timeout: 180
+
+  - model_name: operator-fast
+    litellm_params:
+      model: ollama/dolphin-mistral:7b-v2.8
+      api_base: http://192.168.1.222:11434
+      rpm: 100
+      timeout: 30
+
+  - model_name: operator-code
+    litellm_params:
+      model: ollama/nous-hermes2:10.7b
+      api_base: http://192.168.1.222:11434
+      rpm: 60
+      timeout: 120
+
+  # ── HA extended_openai_conversation aliases ───────────────────────────
+  - model_name: gpt-4o-mini
+    litellm_params:
+      model: ollama/dolphin-mistral:7b-v2.8
+      api_base: http://192.168.1.222:11434
+      rpm: 100
+      timeout: 30
+    model_info:
+      description: "HA voice assistant alias → dolphin-mistral:7b-v2.8"
+
+  - model_name: gpt-4o
+    litellm_params:
+      model: ollama/nous-hermes2:10.7b
+      api_base: http://192.168.1.222:11434
+      rpm: 50
+      timeout: 120
+    model_info:
+      description: "HA gpt-4o alias → nous-hermes2:10.7b"
+
+  # ── Embeddings ───────────────────────────────────────────────────────
+  - model_name: all-minilm
+    litellm_params:
+      model: ollama/all-minilm:l6-v2
+      api_base: http://192.168.1.222:11434
+      rpm: 200
+      timeout: 10
+    model_info:
+      description: "all-minilm:l6-v2 — 384-dim embeddings, 23MB"
+      mode: embedding
+
+general_settings:
+  master_key: ${LITELLM_MASTER_KEY}
+  proxy_batch_write_at: 60
+  database_connection_pool_limit: 10
+
+router_settings:
+  routing_strategy: latency-based-routing
+  num_retries: 2
+  timeout: 60
+  fallbacks:
+    - hermes-auto:
+        - hermes-cheap
+        - hermes-code
+        - hermes-deepseek
+    - hermes-code:
+        - hermes-cheap
+        - arc-reason
+        - hermes-deepseek
+    - brawn-code:
+        - brawn-fast
+    - brawn-dolphin:
+        - brawn-fast

@@ -1,0 +1,100 @@
+# Hermes CLI — Local-First Config (LiteLLM r360)
+#
+# Default: hermes-auto → hermes-cheap → hermes-code → hermes-deepseek
+# All routing handled by LiteLLM on Node B (192.168.1.222:4000)
+#
+# Deploy: Copy to ~/.hermes/config.yaml or use `hermes config set`
+
+model:
+  default: hermes-auto
+  provider: litellm
+  base_url: http://192.168.1.222:4000/v1
+  api_key: sk-master-key
+  context_length: 32000
+  api_mode: chat_completions
+
+providers:
+  litellm:
+    base_url: http://192.168.1.222:4000/v1
+    api_key: sk-master-key
+
+fallback_providers:
+- litellm   # LiteLLM handles internal routing
+
+# ── Model Aliases ──────────────────────────────────────────────────────
+model_aliases:
+  hermes-auto:
+    model: hermes-auto
+    provider: litellm
+    description: "LiteLLM router default → cheap → code → deepseek"
+  hermes-cheap:
+    model: hermes-cheap
+    provider: litellm
+    description: "dolphin-mistral:7b — <500ms, $0, 70% of queries"
+  hermes-code:
+    model: hermes-code
+    provider: litellm
+    description: "nous-hermes2:10.7b — 1-3s, $0, 20% of queries"
+  hermes-deepseek:
+    model: hermes-deepseek
+    provider: litellm
+    description: "DeepSeek V4 Flash — 1M ctx, paid, ≤2% of queries"
+  brawn-fast:
+    model: brawn-fast
+    provider: litellm
+  brawn-code:
+    model: brawn-code
+    provider: litellm
+  deepseek-flash:
+    model: hermes-deepseek
+    provider: litellm
+  all-minilm:
+    model: all-minilm
+    provider: litellm
+
+# ── MCP Servers ────────────────────────────────────────────────────────
+mcp_servers:
+  qdrant:
+    url: http://192.168.1.222:6333
+    status: confirmed
+    notes: "384-dim, 20 collections, primary vector store"
+  ollama:
+    url: http://192.168.1.222:11434
+    status: confirmed
+    notes: "9 models, RTX 4070 12GB"
+  qdrant-local:
+    url: http://192.168.1.11:6333
+    status: needs_verification
+    notes: "Node A Qdrant, 18 collections"
+  vllm:
+    url: http://192.168.1.11:8001/v1
+    status: blocked
+    notes: "vLLM container NOT running. Start: docker compose -f compose/dev/00-ai-stack.yml up -d"
+  home-assistant:
+    url: http://192.168.1.149:8123
+    status: confirmed
+    notes: "HAOS VM on Node E, requires API token"
+  pihole-dns:
+    url: http://192.168.1.162
+    status: confirmed
+    notes: "Pi-hole p1 (RPi 2B) and p2 (Orange Pi Zero 3)"
+  credential-vault:
+    url: http://192.168.1.6:8008
+    status: needs_verification
+    notes: "AES-256-GCM vault on Node C, MCP server"
+  unraid:
+    url: http://192.168.1.222
+    status: confirmed
+    notes: "Unraid 7.2.3, 79 containers, Portainer at :9000"
+
+# ── Token Economy (Self-Restraint) ─────────────────────────────────────
+token_economy:
+  local_first: true
+  deepseek_only_when:
+  - litellm_down
+  - context_exceeds_32k
+  - local_models_fail_twice
+  - user_explicitly_requests
+  max_deepseek_calls_per_session: 3
+  log_local_hits: true
+  log_deepseek_spend: true
